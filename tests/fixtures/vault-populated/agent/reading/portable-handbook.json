@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "slug": "portable-handbook",
+  "title": "Portable Systems Handbook",
+  "started_at": "2026-01-14",
+  "current_chapter": 2,
+  "chapters_focus": [2, 4],
+  "anchors": [
+    {
+      "text": "State should survive an executor change.",
+      "chapter": 2,
+      "added_at": "2026-01-15"
+    }
+  ],
+  "last_session": "2026-01-15",
+  "log_path": "agent/reading/portable-handbook-log.md",
+  "source": {
+    "kind": "coursedump-manifest",
+    "ref": "source_fixture-001"
+  }
+}

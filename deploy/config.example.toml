@@ -1,0 +1,16 @@
+schema_version = 1
+default_vault = "main"
+
+[vaults.main]
+path = "/absolute/path/to/clean-life-os-vault"
+
+[machine_knowledge]
+topics_root = "/absolute/path/to/tools-data/llm-wiki-data/topics"
+
+[migration.legacy_vault]
+path = "/absolute/path/to/legacy-vault"
+read_only = true
+
+[migration.legacy_machine_knowledge]
+path = "/absolute/path/to/legacy-machine-knowledge"
+read_only = true

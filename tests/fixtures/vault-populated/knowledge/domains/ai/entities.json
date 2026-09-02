@@ -1,0 +1,33 @@
+[
+  {
+    "id": "ent-fixture-001",
+    "name": "Evaluate review latency",
+    "scale": "initiative",
+    "status": "active",
+    "owner": "human",
+    "domain": "ai",
+    "created": "2026-01-15",
+    "why": "Exercise the entity lifecycle without personal data.",
+    "priority": 2,
+    "impact": 2,
+    "urgency": 1,
+    "effort": 3,
+    "updated_at": "2026-01-15",
+    "next_review_at": "2026-01-22",
+    "next_check_after": "2026-01-18",
+    "trail": [
+      {
+        "at": "2026-01-15T09:00:00Z",
+        "kind": "created",
+        "note": "Synthetic fixture event."
+      }
+    ],
+    "steps": [
+      {
+        "text": "Inspect the fixture report",
+        "owner": "human",
+        "done": false
+      }
+    ]
+  }
+]

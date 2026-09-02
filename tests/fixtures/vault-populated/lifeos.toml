@@ -1,0 +1,17 @@
+schema_version = 1
+locale = "en"
+timezone = "UTC"
+enabled_flows = ["distill", "project", "plan", "book", "report", "ambient"]
+
+[zones]
+inbox = "inbox"
+review = "review"
+tasks = "tasks"
+projects = "projects"
+knowledge = "knowledge"
+memory = "agent/memory"
+runs = "agent/runs"
+outbox = "agent/outbox"
+
+[surface]
+default = "gated"

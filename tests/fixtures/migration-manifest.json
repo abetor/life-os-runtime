@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "reconciliation": {
+    "ok": true,
+    "source_count": 15,
+    "duplicates": [],
+    "unclassified": []
+  },
+  "counts": {
+    "inventory_entities": {
+      "active_skills": 15
+    }
+  },
+  "records": [
+    {"source_ref":"source:sha256:474a949532022894cf3428f97eeb73cbeae7fda7c91e9ebe4c0ba6c316ee403d","kind":"skill","target":"runtime","outcome":"runtime-capability"},
+    {"source_ref":"source:sha256:8ddf1590c97673bb1ff37e2afbc0df7f8a7c23768390ef9cfb0aabbe3900c7d0","kind":"skill","target":"runtime","outcome":"runtime-capability"},
+    {"source_ref":"source:sha256:eb61f6072d277ee75840506d940af3a21c3c24b3e596c5c7cbfec198927b5f00","kind":"skill","target":"runtime","outcome":"runtime-capability"},
+    {"source_ref":"source:sha256:09ef89d789ee875b6ac122c5060216ec1d40581ebd45ea5d5e66012cb4c8cca3","kind":"skill","target":"runtime","outcome":"runtime-capability"},
+    {"source_ref":"source:sha256:86478e8a253111024649a39aee7a0bd171187c5825a3aa9429efc70c6e0f2eab","kind":"skill","target":"runtime","outcome":"runtime-capability"},
+    {"source_ref":"source:sha256:c4f6fb7381fc1aa08b1f0a2edb4767342ce34df771e2c6c3ee0d1ff1139e3b35","kind":"skill","target":"runtime","outcome":"runtime-capability"},
+    {"source_ref":"source:sha256:283f85a003ed4d60c2515bac7ea482b704be1140d03bac4a405ea3a63453a3a5","kind":"skill","target":"runtime","outcome":"runtime-capability"},
+    {"source_ref":"source:sha256:e0e2ca45ae92b887459e4116ae8a8f4141d163212fba0d419db15a00680ca038","kind":"skill","target":"runtime","outcome":"runtime-capability"},
+    {"source_ref":"source:sha256:6c4533e5d9916871b8f7661455b45a357c2bb1fa10e329035fb5339c59c230d0","kind":"skill","target":"runtime","outcome":"runtime-capability"},
+    {"source_ref":"source:sha256:cb60d9a6d703497c2c4e4209c56c604c1b70e9e47b6e0a8cdd398441d40385f8","kind":"skill","target":"runtime","outcome":"runtime-capability"},
+    {"source_ref":"source:sha256:3e0e9e6198513636478c87308aff03e2c952d6e810d69dc7aa5100e6b766011e","kind":"skill","target":"runtime","outcome":"runtime-capability"},
+    {"source_ref":"source:sha256:ea35cd65c58601126ada00f892176202963076f2008fcad7d7595a348b47d8ba","kind":"skill","target":"runtime","outcome":"runtime-capability"},
+    {"source_ref":"source:sha256:be6c5123933843ccb942ef46a9b0aa1ee8f41f5ced0baee1ed16cde7cd2e00fc","kind":"skill","target":"runtime","outcome":"runtime-capability"},
+    {"source_ref":"source:sha256:658b77beeb06ab61c53bdf07cffcb88dd9fb9e8c3282fd66d5bccd0a02f43c87","kind":"skill","target":"runtime","outcome":"runtime-capability"},
+    {"source_ref":"source:sha256:bae00234cc113849f128c0988705af8fa2e96476c719d117f170aadf224935b5","kind":"skill","target":"runtime","outcome":"runtime-capability"}
+  ]
+}

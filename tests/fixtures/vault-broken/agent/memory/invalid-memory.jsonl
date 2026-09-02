@@ -1,0 +1,1 @@
+{"id":"mem_broken-001","kind":"decision","summary":"This record intentionally lacks only source evidence.","last_confirmed_at":"2026-01-16T09:00:00Z","retention":{"policy":"review-after-days","days":30},"deletion":{"mode":"archive"}}

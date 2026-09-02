@@ -1,0 +1,22 @@
+{
+  "name": "Fixture ambient scan",
+  "type": "recurring",
+  "schedule": "every 1h",
+  "prompt": "",
+  "status": "paused",
+  "skill": "ambient",
+  "domain": "self",
+  "priority": 0,
+  "last_run": null,
+  "last_result": null,
+  "retries": 0,
+  "max_retries": 1,
+  "created_by": "fixture",
+  "created_at": "2026-01-15T08:00:00Z",
+  "allowed_tools": [],
+  "timeout": 60,
+  "cost_class": "cheap",
+  "execution": "command",
+  "command": ["lifeos", "run", "ambient", "--vault-alias", "fixture"],
+  "created_for": "Legacy schedule contract characterization"
+}

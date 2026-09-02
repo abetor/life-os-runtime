@@ -1,0 +1,8 @@
+{
+  "name": "",
+  "type": "recurring",
+  "schedule": "every 1h",
+  "status": "active",
+  "execution": "command",
+  "command": ["lifeos", "status"]
+}

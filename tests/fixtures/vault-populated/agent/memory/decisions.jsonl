@@ -1,0 +1,1 @@
+{"id":"mem_fixture-001","kind":"decision","summary":"Keep protected knowledge behind review.","source":{"kind":"human-confirmation","ref":"fixture-confirmation-001"},"scope":"workflow","created_at":"2026-01-15T10:30:00Z","last_confirmed_at":"2026-01-15T10:30:00Z","retention":{"policy":"review-after-days","days":30},"decay":{"status":"fresh"},"deletion":{"mode":"archive"}}

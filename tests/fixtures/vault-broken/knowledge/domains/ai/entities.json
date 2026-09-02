@@ -1,0 +1,13 @@
+[
+  {
+    "id": "ent-broken-001",
+    "name": "Broken fixture entity",
+    "scale": "unknown",
+    "status": "active",
+    "owner": "nobody",
+    "domain": "ai",
+    "created": "2026-01-16",
+    "trail": [],
+    "steps": []
+  }
+]

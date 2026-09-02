@@ -1,0 +1,14 @@
+{
+  "next_steps": [
+    {
+      "id": "step-fixture-001",
+      "text": "Review the synthetic proposal",
+      "status": "open",
+      "priority": "medium"
+    }
+  ],
+  "blockers": [],
+  "open_questions": [],
+  "milestones": [],
+  "last_session": "2026-01-15T10:00:00Z"
+}

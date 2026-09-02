@@ -1,0 +1,58 @@
+[
+  {
+    "id": "knowledge-missing-frontmatter",
+    "contract": "knowledge",
+    "seed": "vault-populated/knowledge/domains/ai/portable-workflow.md",
+    "mutation": "vault-broken/knowledge/missing-frontmatter.md",
+    "expected_rule": "note.frontmatter.required"
+  },
+  {
+    "id": "review-missing-approval-evidence",
+    "contract": "review",
+    "seed": "vault-populated/review/rev_fixture-001.md",
+    "mutation": "vault-broken/review/rev_invalid-001.md",
+    "expected_rule": "review.approval-evidence.required"
+  },
+  {
+    "id": "task-missing-checkbox",
+    "contract": "task",
+    "seed": "vault-populated/tasks/2026-01-15.md",
+    "mutation": "vault-broken/tasks/2026-01-16.md",
+    "expected_rule": "task.checkbox.required"
+  },
+  {
+    "id": "project-missing-open-questions",
+    "contract": "project",
+    "seed": "vault-populated/projects/portable-fixture/state.json",
+    "mutation": "vault-broken/projects/broken-project/state.json",
+    "expected_rule": "project.open-questions.required"
+  },
+  {
+    "id": "entity-invalid-scale",
+    "contract": "entity",
+    "seed": "vault-populated/knowledge/domains/ai/entities.json",
+    "mutation": "vault-broken/knowledge/domains/ai/entities.json",
+    "expected_rule": "entity.scale.invalid"
+  },
+  {
+    "id": "reading-missing-title",
+    "contract": "reading",
+    "seed": "vault-populated/agent/reading/portable-handbook.json",
+    "mutation": "vault-broken/agent/reading/broken-reading.json",
+    "expected_rule": "reading.title.required"
+  },
+  {
+    "id": "memory-missing-source",
+    "contract": "memory",
+    "seed": "vault-populated/agent/memory/decisions.jsonl",
+    "mutation": "vault-broken/agent/memory/invalid-memory.jsonl",
+    "expected_rule": "memory.source.required"
+  },
+  {
+    "id": "schedule-empty-name",
+    "contract": "schedule",
+    "seed": "vault-legacy-characterization/agent/schedule/valid/ambient-scan.json",
+    "mutation": "vault-broken/agent/schedule/invalid-schedule.json",
+    "expected_rule": "schedule.name.required"
+  }
+]

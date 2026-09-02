@@ -1,0 +1,41 @@
+"""Vault initialization, read-only inventory, and explicit migration plans."""
+
+from .core import (
+    DEFAULT_VAULT_CONFIG,
+    PLAN_KIND,
+    SCHEMA_VERSION,
+    ExcludedTree,
+    InitResult,
+    MigrationOperation,
+    MigrationPlan,
+    ScannedFile,
+    VaultMigrationError,
+    VaultScan,
+    build_migration_plan,
+    init_vault,
+    load_migration_plan,
+    parse_vault_profile,
+    render_migration_plan,
+    render_vault_profile,
+    scan_vault,
+)
+
+__all__ = [
+    "DEFAULT_VAULT_CONFIG",
+    "PLAN_KIND",
+    "SCHEMA_VERSION",
+    "ExcludedTree",
+    "InitResult",
+    "MigrationOperation",
+    "MigrationPlan",
+    "ScannedFile",
+    "VaultMigrationError",
+    "VaultScan",
+    "build_migration_plan",
+    "init_vault",
+    "load_migration_plan",
+    "parse_vault_profile",
+    "render_migration_plan",
+    "render_vault_profile",
+    "scan_vault",
+]

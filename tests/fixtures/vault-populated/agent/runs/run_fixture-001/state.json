@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "run_id": "run_fixture-001",
+  "flow": "distill",
+  "status": "waiting_human",
+  "phase": "waiting_human",
+  "authority": "proposal",
+  "executor": "fixture-executor",
+  "input": {
+    "source_ref": "knowledge/domains/ai/portable-workflow.md",
+    "source_sha256": "f7c34f3f1536d09625ffd881af9813b8b31b22f44d85c166bd975b2172e54ca7"
+  },
+  "artifacts": {
+    "review": "review/rev_fixture-001.md",
+    "plan": ".lifeos/review-plans/rev_fixture-001.json"
+  },
+  "attempt": 1,
+  "created_at": "2026-01-15T09:59:00Z",
+  "updated_at": "2026-01-15T10:00:00Z",
+  "waiting_for": "review-decision",
+  "last_error": null
+}

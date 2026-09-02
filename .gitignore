@@ -1,0 +1,36 @@
+__pycache__/
+.pytest_cache/
+*.egg-info/
+.DS_Store
+
+# Secrets: .env contains real values and must never enter Git. Sample files may
+# document variable names, so explicitly exempt both conventional sample names
+# from the broad `.env.*` rule.
+.env
+.env.*
+!.env.sample
+!.env.example
+
+# Editors and local tooling
+.idea/
+.vscode/
+.agent/
+.claude/
+
+# Build and package output
+/build/
+/dist/
+
+# Local runtime state and output
+/*.log
+/logs/
+/state/
+/output/
+/out/
+/runtime-data/
+/downloaded-media/
+/corpora/
+/model-cache/
+
+# Local development environment created by the quick start.
+/.venv/

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "review_id": "rev_fixture-001",
+  "operations": [
+    {
+      "op": "update",
+      "path": "knowledge/domains/ai/portable-workflow.md",
+      "precondition_sha256": "f7c34f3f1536d09625ffd881af9813b8b31b22f44d85c166bd975b2172e54ca7",
+      "postcondition_sha256": "ff906ad0c882842c0f4c9e699c08e71318f82318e7237d290ef64689e70c75d7",
+      "content": "---\ntags:\n  - ai\n  - knowledge\n  - article\ndate: \"2026-01-15\"\nsource_type: external\nconfidence: medium\n---\n\n# Portable workflow\n\nA deterministic gate checks structure before a proposal reaches human review.\n\nThe proposal records preconditions and postconditions before any protected write.\n"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "next_steps": [
+    {
+      "id": "step-broken-001",
+      "text": "Keep every field except one expected mutation",
+      "status": "open"
+    }
+  ],
+  "blockers": [],
+  "last_session": {
+    "at": "2026-01-16T09:00:00Z",
+    "summary": "Synthetic prior session"
+  }
+}

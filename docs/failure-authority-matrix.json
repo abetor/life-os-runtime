@@ -1,0 +1,2549 @@
+{
+  "flow_inventory": [
+    "ambient",
+    "apply",
+    "ask",
+    "book",
+    "bundle",
+    "distill",
+    "engine",
+    "entities",
+    "finalize",
+    "gateway-delivery",
+    "gateway-transport",
+    "grill-me",
+    "ingest",
+    "lint",
+    "memory",
+    "mentor",
+    "obsidian",
+    "plan",
+    "project",
+    "report",
+    "research",
+    "review-decision",
+    "scheduler-execution"
+  ],
+  "flows": [
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "scan-eligible-signals",
+          "actor": "system",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "none-read-only",
+          "target": "vault:tasks"
+        },
+        {
+          "access": "read",
+          "action_id": "read-ambient-projects",
+          "actor": "system",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "none-read-only",
+          "target": "vault:projects"
+        },
+        {
+          "access": "read",
+          "action_id": "read-ambient-review",
+          "actor": "system",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "none-read-only",
+          "target": "vault:review"
+        },
+        {
+          "access": "read",
+          "action_id": "read-ambient-memory",
+          "actor": "system",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "none-read-only",
+          "target": "vault:agent/memory"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-nudge-outbox-event",
+          "actor": "system",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "outbox-artifact-commit",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "dedupe-or-expire-outbox-item",
+          "target": "vault:agent/outbox"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "system",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "system",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "vault:agent/memory",
+        "vault:projects",
+        "vault:review",
+        "vault:tasks"
+      ],
+      "allowed_writes": [
+        "vault:agent/outbox",
+        "vault:agent/runs"
+      ],
+      "authority_ceiling": "internal-write",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "during-bounded-read"
+      ],
+      "eval_class": "bounded-subjective",
+      "flow_id": "ambient",
+      "irreversible_effects": [],
+      "retry_owner": "scheduler",
+      "rollback": "dedupe-by-semantic-key-and-resume-scan"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "verify-approved-plan",
+          "actor": "runtime-human-approved",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:review"
+        },
+        {
+          "access": "read",
+          "action_id": "read-knowledge-preconditions",
+          "actor": "runtime-human-approved",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:knowledge"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-approved-knowledge",
+          "actor": "runtime-human-approved",
+          "artifact_commit": true,
+          "authority": "protected-write",
+          "crash_points": [
+            "after-journal-before-first-replace",
+            "after-replace-before-journal-finalize",
+            "between-knowledge-replaces"
+          ],
+          "effect_kind": "protected-artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-apply-journal",
+          "target": "vault:knowledge"
+        },
+        {
+          "access": "write",
+          "action_id": "finalize-applied-review",
+          "actor": "runtime-human-approved",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-knowledge-commit-before-review-finalization"
+          ],
+          "effect_kind": "review-finalization-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-review-status-from-apply-journal",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime-human-approved",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "vault:knowledge",
+        "vault:review"
+      ],
+      "allowed_writes": [
+        "vault:agent/runs",
+        "vault:knowledge",
+        "vault:review"
+      ],
+      "authority_ceiling": "protected-write",
+      "crash_points": [
+        "after-journal-before-first-replace",
+        "after-knowledge-commit-before-review-finalization",
+        "after-prepare-before-replace",
+        "after-replace-before-journal-finalize",
+        "between-knowledge-replaces",
+        "during-bounded-read"
+      ],
+      "eval_class": "objective",
+      "flow_id": "apply",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "reconcile-apply-journal-to-old-or-new-set"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "retrieve-cited-evidence",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:knowledge"
+        },
+        {
+          "access": "read",
+          "action_id": "read-memory-retrieval-scope",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/memory"
+        },
+        {
+          "access": "write",
+          "action_id": "optional-file-back-proposal",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "proposal",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "proposal-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "archive-or-supersede-proposal",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "vault:agent/memory",
+        "vault:knowledge"
+      ],
+      "allowed_writes": [
+        "vault:agent/runs",
+        "vault:review"
+      ],
+      "authority_ceiling": "proposal",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "during-bounded-read"
+      ],
+      "eval_class": "bounded-subjective",
+      "flow_id": "ask",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "discard-uncommitted-synthesis-or-resume-by-context-hash"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "read-source-manifest",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "tool:source-manifest"
+        },
+        {
+          "access": "read",
+          "action_id": "read-reading-state",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/reading"
+        },
+        {
+          "access": "read",
+          "action_id": "read-reading-knowledge",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:knowledge"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-reading-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-precondition-hash",
+          "target": "vault:agent/reading"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-reading-knowledge-proposal",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "proposal",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "proposal-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "archive-or-supersede-proposal",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "tool:source-manifest",
+        "vault:agent/reading",
+        "vault:knowledge"
+      ],
+      "allowed_writes": [
+        "vault:agent/reading",
+        "vault:agent/runs",
+        "vault:review"
+      ],
+      "authority_ceiling": "domain-write",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "during-bounded-read"
+      ],
+      "eval_class": "bounded-subjective",
+      "flow_id": "book",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "resume-from-source-manifest-and-reading-state-hash"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "collect-batched-items",
+          "actor": "system",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "none-read-only",
+          "target": "vault:review"
+        },
+        {
+          "access": "read",
+          "action_id": "read-pending-outbox",
+          "actor": "system",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "none-read-only",
+          "target": "vault:agent/outbox"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-bundle-outbox-event",
+          "actor": "system",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "outbox-artifact-commit",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "dedupe-or-supersede-bundle",
+          "target": "vault:agent/outbox"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "system",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "system",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "vault:agent/outbox",
+        "vault:review"
+      ],
+      "allowed_writes": [
+        "vault:agent/outbox",
+        "vault:agent/runs"
+      ],
+      "authority_ceiling": "internal-write",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "during-bounded-read"
+      ],
+      "eval_class": "objective",
+      "flow_id": "bundle",
+      "irreversible_effects": [],
+      "retry_owner": "scheduler",
+      "rollback": "dedupe-by-bundle-window-and-source-hashes"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "read-validated-claims",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "machine-topic:validated-claims"
+        },
+        {
+          "access": "read",
+          "action_id": "read-source-manifests",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "machine-topic:source-manifests"
+        },
+        {
+          "access": "invoke",
+          "action_id": "validate-machine-topic",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "after-tool-exit-before-artifact-registration"
+          ],
+          "effect_kind": "connector-call",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only-validation",
+          "target": "tool:llmwiki"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-review-proposal",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "proposal",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "proposal-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "archive-or-supersede-proposal",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [
+        "tool:llmwiki"
+      ],
+      "allowed_reads": [
+        "machine-topic:source-manifests",
+        "machine-topic:validated-claims"
+      ],
+      "allowed_writes": [
+        "vault:agent/runs",
+        "vault:review"
+      ],
+      "authority_ceiling": "proposal",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "after-tool-exit-before-artifact-registration",
+        "during-bounded-read"
+      ],
+      "eval_class": "bounded-subjective",
+      "flow_id": "distill",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "archive-partial-proposal-and-resume-from-source-hashes"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "read-research-checkpoint",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "machine-topic:research-checkpoint"
+        },
+        {
+          "access": "invoke",
+          "action_id": "compat-resume-researcher",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-tool-exit-before-artifact-registration"
+          ],
+          "effect_kind": "connector-call",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "resume-from-registered-artifact",
+          "target": "tool:researcher"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-engine-compat-proposal",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "proposal",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "proposal-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "archive-or-supersede-proposal",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [
+        "tool:researcher"
+      ],
+      "allowed_reads": [
+        "machine-topic:research-checkpoint"
+      ],
+      "allowed_writes": [
+        "vault:agent/runs",
+        "vault:review"
+      ],
+      "authority_ceiling": "proposal",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "after-tool-exit-before-artifact-registration",
+        "during-bounded-read"
+      ],
+      "eval_class": "bounded-subjective",
+      "flow_id": "engine",
+      "irreversible_effects": [],
+      "retry_owner": "scheduler",
+      "rollback": "resume-same-researcher-run-without-second-engine"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "read-entity-state",
+          "actor": "runtime-human-confirmed",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/memory/entities"
+        },
+        {
+          "access": "read",
+          "action_id": "read-done-events",
+          "actor": "runtime-human-confirmed",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/logs/done-events"
+        },
+        {
+          "access": "read",
+          "action_id": "read-trail-events",
+          "actor": "runtime-human-confirmed",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/memory/trails"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-entity-state",
+          "actor": "runtime-human-confirmed",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-precondition-hash",
+          "target": "vault:agent/memory/entities"
+        },
+        {
+          "access": "write",
+          "action_id": "append-confirmed-done-event",
+          "actor": "runtime-human-confirmed",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "done-event-append",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "append-correcting-done-event",
+          "target": "vault:agent/logs/done-events"
+        },
+        {
+          "access": "write",
+          "action_id": "append-entity-trail",
+          "actor": "runtime-human-confirmed",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "trail-append",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "append-correcting-trail-event",
+          "target": "vault:agent/memory/trails"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime-human-confirmed",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "vault:agent/logs/done-events",
+        "vault:agent/memory/entities",
+        "vault:agent/memory/trails"
+      ],
+      "allowed_writes": [
+        "vault:agent/logs/done-events",
+        "vault:agent/memory/entities",
+        "vault:agent/memory/trails",
+        "vault:agent/runs"
+      ],
+      "authority_ceiling": "domain-write",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "during-bounded-read"
+      ],
+      "eval_class": "objective",
+      "flow_id": "entities",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "reconcile-entity-hash-and-append-correction"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "validate-run-artifacts",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/runs"
+        },
+        {
+          "access": "read",
+          "action_id": "read-review-outcome",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "append-domain-log",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "append-only-log",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-precondition-hash",
+          "target": "vault:agent/logs"
+        },
+        {
+          "access": "write",
+          "action_id": "append-run-trace",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "append-only-trace",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "dedupe-by-semantic-step-id",
+          "target": "vault:agent/runs/trace"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-bounded-metrics",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "bounded-metrics-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "recompute-from-redacted-trace",
+          "target": "vault:agent/logs/metrics"
+        },
+        {
+          "access": "write",
+          "action_id": "emit-semantic-outbox-event",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "outbox-artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "dedupe-by-semantic-key",
+          "target": "vault:agent/outbox"
+        },
+        {
+          "access": "write",
+          "action_id": "finalize-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "vault:agent/runs",
+        "vault:review"
+      ],
+      "allowed_writes": [
+        "vault:agent/logs",
+        "vault:agent/logs/metrics",
+        "vault:agent/outbox",
+        "vault:agent/runs",
+        "vault:agent/runs/trace"
+      ],
+      "authority_ceiling": "internal-write",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "during-bounded-read"
+      ],
+      "eval_class": "objective",
+      "flow_id": "finalize",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "repeat-finalize-with-semantic-dedupe"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "read-semantic-outbox-event",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/outbox"
+        },
+        {
+          "access": "invoke",
+          "action_id": "invoke-normalized-gateway-event",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "external-send",
+          "crash_points": [
+            "after-tool-exit-before-artifact-registration"
+          ],
+          "effect_kind": "gateway-connector-invocation",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "leave-outbox-retryable-until-valid-receipt",
+          "target": "gateway:normalized-event-stdin"
+        },
+        {
+          "access": "read",
+          "action_id": "read-gateway-delivery-receipt",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "gateway:delivery-receipt"
+        },
+        {
+          "access": "write",
+          "action_id": "reconcile-outbox-receipt",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-receipt-before-outbox-reconciliation"
+          ],
+          "effect_kind": "gateway-receipt-reconciliation",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "repeat-reconciliation-by-dedupe-key",
+          "target": "vault:agent/outbox"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [
+        "gateway:normalized-event-stdin"
+      ],
+      "allowed_reads": [
+        "gateway:delivery-receipt",
+        "vault:agent/outbox"
+      ],
+      "allowed_writes": [
+        "vault:agent/outbox"
+      ],
+      "authority_ceiling": "external-send",
+      "crash_points": [
+        "after-receipt-before-outbox-reconciliation",
+        "after-tool-exit-before-artifact-registration",
+        "during-bounded-read"
+      ],
+      "eval_class": "objective",
+      "flow_id": "gateway-delivery",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "keep-outbox-artifact-and-reconcile-valid-receipt"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "read-normalized-event-stdin",
+          "actor": "gateway",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "gateway",
+          "rollback": "none-read-only",
+          "target": "gateway:normalized-event-stdin"
+        },
+        {
+          "access": "invoke",
+          "action_id": "deliver-channel-event",
+          "actor": "gateway",
+          "artifact_commit": false,
+          "authority": "external-send",
+          "crash_points": [
+            "after-channel-accept-before-receipt-commit"
+          ],
+          "effect_kind": "gateway-transport",
+          "irreversible": true,
+          "retry_owner": "gateway",
+          "rollback": "none-after-accept-dedupe-before-retry",
+          "target": "gateway:channel-transport"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-delivery-receipt",
+          "actor": "gateway",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-channel-accept-before-receipt-commit"
+          ],
+          "effect_kind": "gateway-receipt-commit",
+          "irreversible": false,
+          "retry_owner": "gateway",
+          "rollback": "reconcile-receipt-by-dedupe-key",
+          "target": "gateway:delivery-receipt"
+        }
+      ],
+      "actor": "gateway",
+      "allowed_invocations": [
+        "gateway:channel-transport"
+      ],
+      "allowed_reads": [
+        "gateway:normalized-event-stdin"
+      ],
+      "allowed_writes": [
+        "gateway:delivery-receipt"
+      ],
+      "authority_ceiling": "external-send",
+      "crash_points": [
+        "after-channel-accept-before-receipt-commit",
+        "during-bounded-read"
+      ],
+      "eval_class": "objective",
+      "flow_id": "gateway-transport",
+      "irreversible_effects": [
+        "gateway-transport/deliver-channel-event"
+      ],
+      "retry_owner": "gateway",
+      "rollback": "reconcile-receipt-by-dedupe-key-never-delete-runtime-artifact"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "collect-decision-context",
+          "actor": "human",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:projects"
+        },
+        {
+          "access": "read",
+          "action_id": "read-decision-memory",
+          "actor": "human",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/memory"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-question-answer-record",
+          "actor": "human",
+          "artifact_commit": true,
+          "authority": "proposal",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "proposal-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "archive-or-supersede-proposal",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "human",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "vault:agent/memory",
+        "vault:projects"
+      ],
+      "allowed_writes": [
+        "vault:agent/runs",
+        "vault:review"
+      ],
+      "authority_ceiling": "proposal",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "during-bounded-read"
+      ],
+      "eval_class": "owner-judgment",
+      "flow_id": "grill-me",
+      "irreversible_effects": [],
+      "retry_owner": "human",
+      "rollback": "resume-from-recorded-questions-without-inferred-consent"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "classify-declared-input",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "external:declared-input"
+        },
+        {
+          "access": "read",
+          "action_id": "read-inbox-dedupe-state",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:inbox"
+        },
+        {
+          "access": "read",
+          "action_id": "read-source-manifest",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "tool:source-manifest"
+        },
+        {
+          "access": "write",
+          "action_id": "store-inbox-item",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-precondition-hash",
+          "target": "vault:inbox"
+        },
+        {
+          "access": "invoke",
+          "action_id": "extract-heavy-input",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-tool-exit-before-artifact-registration"
+          ],
+          "effect_kind": "connector-call",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "resume-from-registered-artifact",
+          "target": "tool:coursedump"
+        },
+        {
+          "access": "invoke",
+          "action_id": "research-heavy-input",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-tool-exit-before-artifact-registration"
+          ],
+          "effect_kind": "connector-call",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "resume-from-registered-artifact",
+          "target": "tool:researcher"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-review-proposal",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "proposal",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "proposal-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "archive-or-supersede-proposal",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [
+        "tool:coursedump",
+        "tool:researcher"
+      ],
+      "allowed_reads": [
+        "external:declared-input",
+        "tool:source-manifest",
+        "vault:inbox"
+      ],
+      "allowed_writes": [
+        "vault:agent/runs",
+        "vault:inbox",
+        "vault:review"
+      ],
+      "authority_ceiling": "domain-write",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "after-tool-exit-before-artifact-registration",
+        "during-bounded-read"
+      ],
+      "eval_class": "bounded-subjective",
+      "flow_id": "ingest",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "resume-from-source-manifest-and-dedupe-key"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "scan-inbox-zone",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:inbox"
+        },
+        {
+          "access": "read",
+          "action_id": "scan-non-archive-zones",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:knowledge"
+        },
+        {
+          "access": "read",
+          "action_id": "scan-task-zone",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:tasks"
+        },
+        {
+          "access": "read",
+          "action_id": "scan-project-zone",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:projects"
+        },
+        {
+          "access": "read",
+          "action_id": "scan-memory-zone",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/memory"
+        },
+        {
+          "access": "write",
+          "action_id": "apply-allowlisted-inbox-fix",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-precondition-hash",
+          "target": "vault:inbox"
+        },
+        {
+          "access": "write",
+          "action_id": "apply-allowlisted-task-fix",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-precondition-hash",
+          "target": "vault:tasks"
+        },
+        {
+          "access": "write",
+          "action_id": "apply-allowlisted-project-fix",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-precondition-hash",
+          "target": "vault:projects"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-semantic-lint-findings",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "proposal",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "proposal-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "archive-or-supersede-proposal",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "vault:agent/memory",
+        "vault:inbox",
+        "vault:knowledge",
+        "vault:projects",
+        "vault:tasks"
+      ],
+      "allowed_writes": [
+        "vault:agent/runs",
+        "vault:inbox",
+        "vault:projects",
+        "vault:review",
+        "vault:tasks"
+      ],
+      "authority_ceiling": "domain-write",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "during-bounded-read"
+      ],
+      "eval_class": "bounded-subjective",
+      "flow_id": "lint",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "restore-precondition-bytes-and-keep-finding"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "read-current-memory",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/memory"
+        },
+        {
+          "access": "read",
+          "action_id": "check-evidence-and-retention",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/logs"
+        },
+        {
+          "access": "read",
+          "action_id": "read-memory-review-state",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-semantic-memory-proposal",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "proposal",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "proposal-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "archive-or-supersede-proposal",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-deterministic-memory-metadata",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-precondition-hash",
+          "target": "vault:agent/memory-metadata"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "vault:agent/logs",
+        "vault:agent/memory",
+        "vault:review"
+      ],
+      "allowed_writes": [
+        "vault:agent/memory-metadata",
+        "vault:agent/runs",
+        "vault:review"
+      ],
+      "authority_ceiling": "domain-write",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "during-bounded-read"
+      ],
+      "eval_class": "bounded-subjective",
+      "flow_id": "memory",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "restore-metadata-precondition-and-supersede-proposal"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "collect-bounded-mentor-context",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:projects"
+        },
+        {
+          "access": "read",
+          "action_id": "read-mentor-knowledge",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:knowledge"
+        },
+        {
+          "access": "read",
+          "action_id": "read-mentor-memory",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/memory"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-mentor-proposal",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "proposal",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "proposal-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "archive-or-supersede-proposal",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "vault:agent/memory",
+        "vault:knowledge",
+        "vault:projects"
+      ],
+      "allowed_writes": [
+        "vault:agent/runs",
+        "vault:review"
+      ],
+      "authority_ceiling": "proposal",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "during-bounded-read"
+      ],
+      "eval_class": "bounded-subjective",
+      "flow_id": "mentor",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "discard-unvalidated-output-or-supersede-proposal"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "read-inbox-note",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:inbox"
+        },
+        {
+          "access": "read",
+          "action_id": "read-safe-note",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:knowledge"
+        },
+        {
+          "access": "read",
+          "action_id": "read-task-note",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:tasks"
+        },
+        {
+          "access": "read",
+          "action_id": "read-project-note",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:projects"
+        },
+        {
+          "access": "read",
+          "action_id": "read-memory-note",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/memory"
+        },
+        {
+          "access": "write",
+          "action_id": "edit-inbox",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-precondition-hash",
+          "target": "vault:inbox"
+        },
+        {
+          "access": "write",
+          "action_id": "edit-tasks",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-precondition-hash",
+          "target": "vault:tasks"
+        },
+        {
+          "access": "write",
+          "action_id": "edit-projects",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-precondition-hash",
+          "target": "vault:projects"
+        },
+        {
+          "access": "write",
+          "action_id": "edit-memory-metadata",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-precondition-hash",
+          "target": "vault:agent/memory-metadata"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "vault:agent/memory",
+        "vault:inbox",
+        "vault:knowledge",
+        "vault:projects",
+        "vault:tasks"
+      ],
+      "allowed_writes": [
+        "vault:agent/memory-metadata",
+        "vault:inbox",
+        "vault:projects",
+        "vault:tasks"
+      ],
+      "authority_ceiling": "domain-write",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "during-bounded-read"
+      ],
+      "eval_class": "objective",
+      "flow_id": "obsidian",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "restore-precondition-bytes-or-archive"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "collect-plan-context",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:tasks"
+        },
+        {
+          "access": "read",
+          "action_id": "read-plan-project-context",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:projects"
+        },
+        {
+          "access": "read",
+          "action_id": "read-plan-entity-context",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/memory"
+        },
+        {
+          "access": "write",
+          "action_id": "snapshot-task-preimage",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-snapshot-before-task-replace"
+          ],
+          "effect_kind": "task-snapshot-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "retain-snapshot-and-reconcile-task-replace",
+          "target": "vault:agent/logs/tasks"
+        },
+        {
+          "access": "read",
+          "action_id": "extract-feedback-markers",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:tasks"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-feedback-proposal",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "proposal",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "proposal-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "archive-or-supersede-proposal",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-plan-or-rollover",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-rollover-prepare-before-task-replace"
+          ],
+          "effect_kind": "artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "restore-task-precondition-or-reconcile-rollover",
+          "target": "vault:tasks"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "vault:agent/memory",
+        "vault:projects",
+        "vault:tasks"
+      ],
+      "allowed_writes": [
+        "vault:agent/logs/tasks",
+        "vault:agent/runs",
+        "vault:review",
+        "vault:tasks"
+      ],
+      "authority_ceiling": "domain-write",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "after-rollover-prepare-before-task-replace",
+        "after-snapshot-before-task-replace",
+        "during-bounded-read"
+      ],
+      "eval_class": "bounded-subjective",
+      "flow_id": "plan",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "restore-task-precondition-or-reconcile-by-task-id"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "read-project-state",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:projects"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-project-transition",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-move-before-state-replace",
+            "after-project-prepare-before-move"
+          ],
+          "effect_kind": "artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-project-state-and-location",
+          "target": "vault:projects"
+        },
+        {
+          "access": "invoke",
+          "action_id": "apply-linked-schedule-transition",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-project-transition-before-schedule-reconciliation"
+          ],
+          "effect_kind": "scheduler-connector-invocation",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "reconcile-schedules-from-project-lifecycle",
+          "target": "tool:scheduler"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-project-knowledge-proposal",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "proposal",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "proposal-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "archive-or-supersede-proposal",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [
+        "tool:scheduler"
+      ],
+      "allowed_reads": [
+        "vault:projects"
+      ],
+      "allowed_writes": [
+        "vault:agent/runs",
+        "vault:projects",
+        "vault:review"
+      ],
+      "authority_ceiling": "domain-write",
+      "crash_points": [
+        "after-move-before-state-replace",
+        "after-prepare-before-replace",
+        "after-project-prepare-before-move",
+        "after-project-transition-before-schedule-reconciliation",
+        "during-bounded-read"
+      ],
+      "eval_class": "objective",
+      "flow_id": "project",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "reconcile-project-state-and-physical-lifecycle"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "read-report-projects",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:projects"
+        },
+        {
+          "access": "read",
+          "action_id": "read-report-tasks",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:tasks"
+        },
+        {
+          "access": "read",
+          "action_id": "collect-primary-evidence",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/logs"
+        },
+        {
+          "access": "read",
+          "action_id": "read-report-memory",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:agent/memory"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-memory-proposal",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "proposal",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "proposal-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "archive-or-supersede-proposal",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "append-report-log",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "append-only-log",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-precondition-hash",
+          "target": "vault:agent/logs"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "vault:agent/logs",
+        "vault:agent/memory",
+        "vault:projects",
+        "vault:tasks"
+      ],
+      "allowed_writes": [
+        "vault:agent/logs",
+        "vault:agent/runs",
+        "vault:review"
+      ],
+      "authority_ceiling": "proposal",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "during-bounded-read"
+      ],
+      "eval_class": "bounded-subjective",
+      "flow_id": "report",
+      "irreversible_effects": [],
+      "retry_owner": "runtime",
+      "rollback": "supersede-report-proposal-and-dedupe-log"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "read-declared-research-input",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "external:declared-research-input"
+        },
+        {
+          "access": "read",
+          "action_id": "read-validated-research-claims",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "machine-topic:validated-claims"
+        },
+        {
+          "access": "invoke",
+          "action_id": "start-or-resume-researcher",
+          "actor": "runtime",
+          "artifact_commit": false,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-tool-exit-before-artifact-registration"
+          ],
+          "effect_kind": "connector-call",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "resume-from-registered-artifact",
+          "target": "tool:researcher"
+        },
+        {
+          "access": "write",
+          "action_id": "commit-research-proposal",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "proposal",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "proposal-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "archive-or-supersede-proposal",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "record-run-state",
+          "actor": "runtime",
+          "artifact_commit": true,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "run-state-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "reconcile-run-envelope",
+          "target": "vault:agent/runs"
+        }
+      ],
+      "actor": "runtime",
+      "allowed_invocations": [
+        "tool:researcher"
+      ],
+      "allowed_reads": [
+        "external:declared-research-input",
+        "machine-topic:validated-claims"
+      ],
+      "allowed_writes": [
+        "vault:agent/runs",
+        "vault:review"
+      ],
+      "authority_ceiling": "proposal",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "after-tool-exit-before-artifact-registration",
+        "during-bounded-read"
+      ],
+      "eval_class": "bounded-subjective",
+      "flow_id": "research",
+      "irreversible_effects": [],
+      "retry_owner": "scheduler",
+      "rollback": "resume-researcher-checkpoint-then-dedupe-proposal"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "inspect-review-and-plan",
+          "actor": "human",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "none-read-only",
+          "target": "vault:review"
+        },
+        {
+          "access": "write",
+          "action_id": "record-approve-reject-or-supersede",
+          "actor": "human",
+          "artifact_commit": true,
+          "authority": "domain-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "artifact-commit",
+          "irreversible": false,
+          "retry_owner": "runtime",
+          "rollback": "append-correcting-decision",
+          "target": "vault:review"
+        }
+      ],
+      "actor": "human",
+      "allowed_invocations": [],
+      "allowed_reads": [
+        "vault:review"
+      ],
+      "allowed_writes": [
+        "vault:review"
+      ],
+      "authority_ceiling": "domain-write",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "during-bounded-read"
+      ],
+      "eval_class": "owner-judgment",
+      "flow_id": "review-decision",
+      "irreversible_effects": [],
+      "retry_owner": "human",
+      "rollback": "append-correcting-decision-with-current-plan-hash"
+    },
+    {
+      "actions": [
+        {
+          "access": "read",
+          "action_id": "read-versioned-recipe",
+          "actor": "scheduler",
+          "artifact_commit": false,
+          "authority": "read",
+          "crash_points": [
+            "during-bounded-read"
+          ],
+          "effect_kind": "read-only",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "none-read-only",
+          "target": "scheduler:recipe"
+        },
+        {
+          "access": "write",
+          "action_id": "record-job-attempt",
+          "actor": "scheduler",
+          "artifact_commit": false,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-prepare-before-replace"
+          ],
+          "effect_kind": "scheduler-execution",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "retry-by-job-policy",
+          "target": "scheduler:job-state"
+        },
+        {
+          "access": "invoke",
+          "action_id": "invoke-runtime-flow",
+          "actor": "scheduler",
+          "artifact_commit": false,
+          "authority": "internal-write",
+          "crash_points": [
+            "after-tool-exit-before-artifact-registration"
+          ],
+          "effect_kind": "scheduler-execution",
+          "irreversible": false,
+          "retry_owner": "scheduler",
+          "rollback": "runtime-reauthorizes-each-downstream-action-as-system",
+          "target": "runtime:flow-entry"
+        }
+      ],
+      "actor": "scheduler",
+      "allowed_invocations": [
+        "runtime:flow-entry"
+      ],
+      "allowed_reads": [
+        "scheduler:recipe"
+      ],
+      "allowed_writes": [
+        "scheduler:job-state"
+      ],
+      "authority_ceiling": "internal-write",
+      "crash_points": [
+        "after-prepare-before-replace",
+        "after-tool-exit-before-artifact-registration",
+        "during-bounded-read"
+      ],
+      "eval_class": "objective",
+      "flow_id": "scheduler-execution",
+      "irreversible_effects": [],
+      "retry_owner": "scheduler",
+      "rollback": "retry-technical-invocation-without-domain-decision"
+    }
+  ],
+  "schema_version": 1
+}

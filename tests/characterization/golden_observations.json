@@ -1,0 +1,55 @@
+{
+  "capture": {
+    "kind": "privacy-safe-exact-legacy-observations",
+    "captured_on": "2026-08-20",
+    "source": "opt-in exact source with tmp-only globals and fake transports",
+    "exact_scopes": {
+      "review_apply": "begin and apply filesystem effects",
+      "project_transitions": "archive with engine and schedule cascade",
+      "task_rollover": "snapshot helper followed by harness-owned replacement",
+      "entity_done_trails": "entity save, done add and two trail appends",
+      "reading": "close with manifest and done-log boundaries faked",
+      "surface": "silent and gated main paths with fake transport",
+      "finalize": "transform validation and metrics across two attempts"
+    },
+    "exact_gaps": [
+      "task replacement belongs to the caller, not the legacy rollover module",
+      "legacy surface has no target outbox or receipt ordering",
+      "finalize success is observed at the command return boundary"
+    ]
+  },
+  "observations": {
+    "review_apply": {
+      "review_archived": true,
+      "marker_removed": true
+    },
+    "project_transitions": {
+      "archived_location": "projects/_archive/<slug>-<date>",
+      "project_status": "archived",
+      "engine_status": "archived",
+      "schedule_status": "paused"
+    },
+    "task_rollover": {
+      "snapshot_precedes_replace": true,
+      "snapshot_preserves_preimage": true
+    },
+    "entity_done_trails": {
+      "record_paths_distinct": true,
+      "identifier_namespaces_distinct": true,
+      "trail_entry_count": 2
+    },
+    "reading": {
+      "state_removed": true,
+      "log_retained": true,
+      "close_recorded": true
+    },
+    "surface": {
+      "silent_transport_count": 0,
+      "gated_transport_count": 1
+    },
+    "finalize": {
+      "validation_before_success": true,
+      "retry_metric_effects": 2
+    }
+  }
+}
