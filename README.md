@@ -142,6 +142,9 @@ copied into the vault automatically.
   installed researcher source tree before running that specific smoke test.
 - Two review fixtures and the retrieval stop-word list contain Russian text on purpose:
   multilingual vault content is part of the contract.
+- The P4 gate audits installed sources by AST hash, and the allowlisted hashes are
+  generated with Python 3.13. On 3.11 and 3.12 the runtime imports and runs, but the
+  gate's audit tests fail, so CI covers 3.13 only.
 
 ## Tests
 
