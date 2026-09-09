@@ -1075,6 +1075,7 @@ uninstall(Path(sys.argv[1]), Path(sys.argv[2]))
     ]
 
 
+@pytest.mark.fresh_inode
 def test_process_exit_after_foreign_inode_quarantine_restores_foreign_to_public_path(
     tmp_path: Path,
 ) -> None:
@@ -1126,6 +1127,7 @@ uninstall(target, Path(sys.argv[2]))
     assert not manifest_path(manifests).exists()
 
 
+@pytest.mark.fresh_inode
 def test_foreign_quarantine_recovery_never_overwrites_new_live_wrapper(
     tmp_path: Path,
 ) -> None:

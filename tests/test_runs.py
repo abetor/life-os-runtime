@@ -1916,6 +1916,7 @@ def test_receipt_projection_state_and_trace_are_separate_schemas(tmp_path):
         )
 
 
+@pytest.mark.fresh_inode
 def test_immutable_receipt_stage_cleanup_preserves_substituted_foreign_leaf(
     tmp_path, monkeypatch
 ):
@@ -2161,6 +2162,7 @@ def test_run_swap_during_downstream_publish_rolls_back_new_artifact(
         assert not (vault / "agent/dashboard/runs/run_fixture.md").exists()
 
 
+@pytest.mark.fresh_inode
 def test_receipt_rollback_never_deletes_a_replacement_at_the_rename_seam(
     tmp_path, monkeypatch
 ):

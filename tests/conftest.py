@@ -46,3 +46,36 @@ def isolate(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     for name in _env_sample_vars():
         monkeypatch.delenv(name, raising=False)
+
+
+def _inode_reused_after_unlink() -> bool:
+    """True when this filesystem hands the freed inode number straight back.
+
+    ext4 does; APFS and tmpfs do not. Tests that detect a foreign same-name
+    substitution by inode number cannot pass where the number is reused.
+    README Limitations documents the runtime side of this.
+    """
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as directory:
+        probe = Path(directory) / "probe"
+        probe.write_bytes(b"a")
+        first = probe.stat().st_ino
+        probe.unlink()
+        probe.write_bytes(b"b")
+        return probe.stat().st_ino == first
+
+
+INODE_REUSED = _inode_reused_after_unlink()
+
+
+def pytest_collection_modifyitems(items):
+    if not INODE_REUSED:
+        return
+    skip = pytest.mark.skip(
+        reason="this filesystem reuses an inode number right after unlink, so a "
+        "same-name substitution is not detectable by inode here; see README Limitations"
+    )
+    for item in items:
+        if "fresh_inode" in item.keywords:
+            item.add_marker(skip)

@@ -849,6 +849,7 @@ def test_parent_renamed_during_prepare_or_publish_is_retired_or_rolled_back(
     )
 
 
+@pytest.mark.fresh_inode
 def test_same_byte_post_publish_inode_substitution_has_no_receipt(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

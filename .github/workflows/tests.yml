@@ -32,6 +32,11 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install ripgrep
+        # dev_manifest reconciliation shells out to rg; ten tests need it.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ripgrep
       - name: Install
         run: |
           python3 -m pip install -e .

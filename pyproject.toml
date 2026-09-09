@@ -21,6 +21,9 @@ include = ["tool_life_os_runtime*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "fresh_inode: needs a filesystem that does not reuse an inode number right after unlink",
+]
 
 [project.urls]
 Repository = "https://github.com/abetor/life-os-runtime"

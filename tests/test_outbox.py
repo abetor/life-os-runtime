@@ -351,6 +351,7 @@ def test_outbox_swap_does_not_publish_through_symlink(tmp_path, monkeypatch) -> 
     assert recovery[0].name.startswith("event-")
 
 
+@pytest.mark.fresh_inode
 def test_temp_cleanup_never_deletes_a_substituted_foreign_leaf(
     tmp_path, monkeypatch
 ) -> None:
@@ -388,6 +389,7 @@ def test_temp_cleanup_never_deletes_a_substituted_foreign_leaf(
     assert not list(outbox.glob("event_*.json"))
 
 
+@pytest.mark.fresh_inode
 def test_foreign_replacement_at_rollback_seam_is_preserved(
     tmp_path, monkeypatch
 ) -> None:

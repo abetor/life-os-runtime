@@ -145,6 +145,11 @@ copied into the vault automatically.
 - The P4 gate audits installed sources by AST hash, and the allowlisted hashes are
   generated with Python 3.13. On 3.11 and 3.12 the runtime imports and runs, but the
   gate's audit tests fail, so CI covers 3.13 only.
+- Foreign-substitution detection at rename seams compares inode numbers. On APFS a
+  file recreated after unlink gets a new inode; on ext4 the freed inode number is
+  reused at once, so a same-name unlink-and-recreate by another process can pass as
+  the original there. Seven tests that depend on a fresh inode skip on such
+  filesystems and say so; an atomic replacement through rename is still detected.
 
 ## Tests
 
@@ -158,6 +163,9 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider
 The suite redirects `HOME` and the working directory to temporary locations,
 removes declared credential variables, uses synthetic vault fixtures, and keeps
 live agent or network checks outside the default gate.
+
+The suite also needs `rg` (ripgrep) on PATH: the dev-manifest reconciliation shells
+out to it, and ten tests fail without it.
 
 ## Provenance
 
