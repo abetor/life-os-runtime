@@ -1,5 +1,7 @@
 # life-os-runtime
 
+[![Tests](https://github.com/abetor/life-os-runtime/actions/workflows/tests.yml/badge.svg)](https://github.com/abetor/life-os-runtime/actions/workflows/tests.yml)
+
 Filesystem runtime for personal knowledge vaults, with resumable flow APIs, explicit authority, and human review for protected knowledge writes.
 
 [Quick start](#quick-start) | [Offline demo](#offline-demo) | [Architecture](docs/DESIGN.md) | [Tests](#tests) | [Contributing and agent guide](AGENTS.md) | [MIT license](LICENSE)
