@@ -1,4 +1,4 @@
-# tool-life-os-runtime
+# life-os-runtime
 
 Filesystem runtime for personal knowledge vaults, with resumable flow APIs, explicit authority, and human review for protected knowledge writes.
 
@@ -14,7 +14,7 @@ content, credentials, logs, and downloaded corpora outside the source tree.
 
 ## What it does
 
-`tool-life-os-runtime` is a filesystem runtime for a personal Life OS. It:
+`life-os-runtime` is a filesystem runtime for a personal Life OS. It:
 
 - validates versioned vault configuration and schema;
 - initializes and scans explicitly configured vaults without following unsafe
@@ -26,8 +26,9 @@ content, credentials, logs, and downloaded corpora outside the source tree.
 - installs deterministic thin skill wrappers for supported agent harnesses;
 - calls independent tools through versioned CLI connector contracts.
 
-The package exposes `lifeos` and the equivalent
-`python3 -m tool_life_os_runtime` entry point.
+The repository is `life-os-runtime`, the distribution is `tool-life-os-runtime`, and the
+Python package is `tool_life_os_runtime`. The CLI is `lifeos`, equivalent to
+`python3 -m tool_life_os_runtime`.
 
 The public CLI currently exposes `init`, `scan`, `doctor`, `status`, `run-status`,
 and `skills`. Flow execution is a Python integration surface under
@@ -139,14 +140,8 @@ copied into the vault automatically.
   quality and real human workflow behavior still require separate live review.
 - Live connector checks are opt-in. Set `LIFEOS_RESEARCHER_SMOKE_ROOT` to an
   installed researcher source tree before running that specific smoke test.
-- This public tree contains two intentional Cyrillic legacy-schema fixtures:
-  `tests/fixtures/vault-broken/review/rev_invalid-001.md` and
-  `tests/fixtures/vault-populated/review/rev_fixture-001.md`. Their headings and
-  type label are the data under test. Test code uses Unicode escapes so source,
-  comments, and docstrings remain English-only.
-- Russian stop words remain supported by retrieval through Unicode-escaped
-  literals. This preserves multilingual behavior without embedding non-English
-  comments or documentation in source.
+- Two review fixtures and the retrieval stop-word list contain Russian text on purpose:
+  multilingual vault content is part of the contract.
 
 ## Tests
 
@@ -160,6 +155,11 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider
 The suite redirects `HOME` and the working directory to temporary locations,
 removes declared credential variables, uses synthetic vault fixtures, and keeps
 live agent or network checks outside the default gate.
+
+## Provenance
+
+This repository began as a public source snapshot of a personal tool. Earlier local development
+history is not included.
 
 ## License
 

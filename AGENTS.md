@@ -72,3 +72,14 @@ failure-authority matrix as public contracts. A contract change must update
 `README.md`, `docs/DESIGN.md`, the matrix artifacts when applicable, and tests
 in the same change. Version persisted and machine-readable formats instead of
 silently changing them.
+
+## Non-English test fixtures
+
+- This public tree contains two intentional Cyrillic legacy-schema fixtures:
+  `tests/fixtures/vault-broken/review/rev_invalid-001.md` and
+  `tests/fixtures/vault-populated/review/rev_fixture-001.md`. Their headings and
+  type label are the data under test. Test code uses Unicode escapes so source,
+  comments, and docstrings remain English-only.
+- Russian stop words remain supported by retrieval through Unicode-escaped
+  literals. This preserves multilingual behavior without embedding non-English
+  comments or documentation in source.
